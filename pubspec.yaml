@@ -1,12 +1,12 @@
 name: stories_page_view_example
-description: A new Flutter project.
+description: Example of a Stories Page View using the [stories_page_view](https://pub.dev/packages/stories_page_view) package.
 
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.5 <4.0.0'
+  sdk: '>=3.0.2 <4.0.0'
 
 dependencies:
   flutter:

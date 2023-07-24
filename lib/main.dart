@@ -114,7 +114,13 @@ class _SukukStoriesPageState extends State<SukukStoriesPage> {
         itemBuilder: (context, pageIndex, snapIndex, animation, controller) {
           return Stack(
             children: [
-              getChild(pageIndex, snapIndex, controller),
+              Scaffold(
+                body: getChild(
+                  pageIndex,
+                  snapIndex,
+                  controller,
+                ),
+              ),
               SafeArea(
                 child: StoryProgressBars(
                   snapIndex: snapIndex,
