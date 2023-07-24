@@ -36,7 +36,7 @@ class HomePage extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => const SukukStoriesPage(index: 0),
+                builder: (context) => const StoriesPage(index: 0),
               ),
             );
           },
@@ -47,18 +47,18 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class SukukStoriesPage extends StatefulWidget {
+class StoriesPage extends StatefulWidget {
   final int index;
-  const SukukStoriesPage({
+  const StoriesPage({
     super.key,
     required this.index,
   });
 
   @override
-  State<SukukStoriesPage> createState() => _SukukStoriesPageState();
+  State<StoriesPage> createState() => _StoriesPageState();
 }
 
-class _SukukStoriesPageState extends State<SukukStoriesPage> {
+class _StoriesPageState extends State<StoriesPage> {
   List<Story> storiesData = [];
 
   Future<void> getData() async {
