@@ -115,11 +115,7 @@ class _StoriesPageState extends State<StoriesPage> {
           return Stack(
             children: [
               Scaffold(
-                body: getChild(
-                  pageIndex,
-                  snapIndex,
-                  controller,
-                ),
+                body: getChild(pageIndex, snapIndex, controller),
               ),
               SafeArea(
                 child: StoryProgressBars(
