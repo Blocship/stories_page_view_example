@@ -1,76 +1,197 @@
 import 'package:flutter/material.dart';
+import 'package:stories_page_view/stories_page_view.dart';
+
+import 'model/story.dart';
+import 'view/progress_bar.dart';
+import 'view/snap_view.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-
-  final String title;
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Home Page"),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const SukukStoriesPage(index: 0),
+              ),
+            );
+          },
+          child: const Text("Go to Sukuk Stories"),
+        ),
+      ),
+    );
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class SukukStoriesPage extends StatefulWidget {
+  final int index;
+  const SukukStoriesPage({
+    super.key,
+    required this.index,
+  });
 
-  void _incrementCounter() {
-    setState(() {
+  @override
+  State<SukukStoriesPage> createState() => _SukukStoriesPageState();
+}
 
-      _counter++;
-    });
+class _SukukStoriesPageState extends State<SukukStoriesPage> {
+  final List<Story> storiesData = [];
+
+  Future<void> getData() async {
+    await Future.delayed(const Duration(seconds: 5));
+    storiesData.add(
+      Story.fromJson({
+        "data": "Story 1",
+        "snaps": [
+          {
+            "type": "text",
+            "data": "Hello World",
+            "duration": "5",
+          },
+          {
+            "type": "image",
+            "data":
+                "https://image.ibb.co/cU4WGx/Omotuo-Groundnut-Soup-braperucci-com-1.jpg",
+            "duration": "5"
+          },
+          {
+            "type": "video",
+            "data":
+                "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
+            "duration": "10"
+          },
+        ],
+      }),
+    );
+    storiesData.add(
+      Story.fromJson({
+        "data": "Story 2",
+        "snaps": [
+          {
+            "type": "image",
+            "data":
+                "https://image.ibb.co/cU4WGx/Omotuo-Groundnut-Soup-braperucci-com-1.jpg",
+            "duration": "5"
+          },
+          {
+            "type": "text",
+            "data": "Hello World 2",
+            "duration": "5",
+          },
+        ],
+      }),
+    );
+    storiesData.add(
+      Story.fromJson({
+        "data": "Story 3",
+        "snaps": [
+          {
+            "type": "video",
+            "data":
+                "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
+            "duration": "10"
+          },
+        ],
+      }),
+    );
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  Widget getChild(
+    int storyPageIndex,
+    int snapIndex,
+    StoryController controller,
+  ) {
+    final snap = storiesData[storyPageIndex].snaps[snapIndex];
+    return SnapView.fromSnap(controller: controller, snap: snap);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-        title: Text(widget.title),
-      ),
-      body: Center(
-
-        child: Column(
-
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+    if (storiesData.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
+      );
+    }
+    return Scaffold(
+      body: StoryPageView(
+        pageCount: storiesData.length,
+        outOfRangeCompleted: () {
+          Navigator.of(context).pop();
+        },
+        durationBuilder: (pageIndex, snapIndex) {
+          return storiesData[pageIndex].snaps[snapIndex].duration;
+        },
+        snapCountBuilder: (pageIndex) {
+          return storiesData[pageIndex].snaps.length;
+        },
+        snapInitialIndexBuilder: (pageIndex) {
+          return 0;
+        },
+        itemBuilder: (context, pageIndex, snapIndex, animation, controller) {
+          return Stack(
+            children: [
+              getChild(pageIndex, snapIndex, controller),
+              SafeArea(
+                child: StoryProgressBars(
+                  snapIndex: snapIndex,
+                  snapCount: storiesData[pageIndex].snaps.length,
+                  animation: animation,
+                  builder: (progress) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 8,
+                        ),
+                        child: ProgressBarIndicator(
+                          progress: progress,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), 
     );
   }
 }
